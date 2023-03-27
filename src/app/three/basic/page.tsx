@@ -13,6 +13,7 @@ export default function App() {
       <Box position={[-1.2, 0, 0]} />
       <Box position={[1.2, 0, 0]} />
       <OrbitControls />
+      <axesHelper args={[5]} />
     </Canvas>
   );
 }

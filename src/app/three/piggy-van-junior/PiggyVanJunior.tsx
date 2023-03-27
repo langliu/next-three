@@ -8,9 +8,10 @@ Title: Piggy Van Junior (3d Print)
 */
 
 import * as THREE from 'three';
-import React, { useRef } from 'react';
-import { useGLTF, useAnimations } from '@react-three/drei';
+import React, { useEffect, useRef } from 'react';
+import { useGLTF, useAnimations, useScroll } from '@react-three/drei';
 import { GLTF } from 'three-stdlib';
+import { useFrame } from '@react-three/fiber';
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -83,7 +84,10 @@ type GLTFResult = GLTF & {
 };
 
 type ActionName = 'Take 001';
-type GLTFActions = Record<ActionName, THREE.AnimationAction>;
+// type GLTFActions = Record<ActionName, THREE.AnimationAction> 
+interface GLTFActions extends THREE.AnimationClip {
+  name: ActionName;
+}
 
 export function Model(props: JSX.IntrinsicElements['group']) {
   const group = useRef<THREE.Group>();
@@ -91,6 +95,27 @@ export function Model(props: JSX.IntrinsicElements['group']) {
     '/piggy_van_junior_3d_print-transformed.glb'
   ) as GLTFResult;
   const { actions } = useAnimations<GLTFActions>(animations, group);
+  const scroll = useScroll();
+  useEffect(() => {
+    if(actions['Take 001']?.play().paused) {
+      actions['Take 001'].play().paused = true
+    }
+  }, []);
+
+  useFrame((state, delta) => {
+    const action = actions['Take 001'];
+    // Action.time is the clip duration multiplied with the normalized scroll offset (0-1)
+    action.time = action.getClip().duration * scroll.offset;
+    // Move camera along
+    // state.camera.position.set(
+    //   Math.sin(scroll.offset) * 10,
+    //   Math.atan(scroll.offset * Math.PI * 2) * 5,
+    //   Math.cos((scroll.offset * Math.PI) / 2) * 10
+    // );
+    // state.camera.zoom = 10 - scroll.offset * 0.5;
+    state.camera.lookAt(0, 0, 0);
+    state.camera.updateProjectionMatrix();
+  });
   return (
     <group ref={group} {...props} dispose={null}>
       <group name='Sketchfab_Scene'>

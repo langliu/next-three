@@ -1,12 +1,28 @@
 import Image from 'next/image'
 import { Inter } from 'next/font/google'
 import styles from './page.module.css'
+import ExampleCard from '~/app/ExampleCard'
 
 const inter = Inter({ subsets: ['latin'] })
 
-export default function Home() {
+export default function Home () {
   return (
     <main className={styles.main}>
+      <div style={{
+        display: 'flex',
+        gap: 32,
+      }}>
+        <ExampleCard
+          image={'/cover/chair.png'}
+          href={'/three/chair'}
+          title={'可配置的沙发'}
+        />
+        <ExampleCard
+          image={'/cover/shoe.png'}
+          href={'/three/shoe'}
+          title={'可配置的鞋子'}
+        />
+      </div>
       <div className={styles.description}>
         <p>
           Get started by editing&nbsp;

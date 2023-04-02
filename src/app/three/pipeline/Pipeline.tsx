@@ -1,7 +1,7 @@
+import { FC, useMemo, useLayoutEffect } from 'react'
 import { Tube, useTexture } from '@react-three/drei'
-import { FC, useMemo } from 'react'
 import { Curve, Vector3, RepeatWrapping } from 'three'
-import * as gsap from 'gsap'
+import gsap from 'gsap'
 
 const Pipeline: FC = () => {
   const path = useMemo(() => {
@@ -26,11 +26,29 @@ const Pipeline: FC = () => {
   }, [])
 
   const arrowTexture = useTexture({
-    map: '/R-C.jpg'
+    map: '/R-C.jpg',
+  }, (texture) => {
+    // if (texture) {texture.wrapS = RepeatWrapping}
+    if (Array.isArray(texture)) {
+      for (const item of texture) {
+        item.wrapS = item.wrapT = RepeatWrapping
+        item.repeat.set(30, 5)
+      }
+    }
+    console.log(texture)
   })
-  arrowTexture.map.repeat.set(30, 3)
-  arrowTexture.map.wrapS =
-    arrowTexture.map.wrapT = RepeatWrapping
+
+  useLayoutEffect(() => {
+    let ctx = gsap.context(() => {
+      gsap.to(arrowTexture.map.offset, {
+        x: 1,
+        duration: 0.4,
+        repeat: -1,
+        ease: 'none'
+      })
+    })
+    return () => ctx.revert()
+  }, [arrowTexture])
 
   return (
     <mesh>

@@ -35,7 +35,6 @@ const Pipeline: FC = () => {
         item.repeat.set(30, 5)
       }
     }
-    console.log(texture)
   })
 
   useLayoutEffect(() => {

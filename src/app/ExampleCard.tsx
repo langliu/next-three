@@ -7,12 +7,14 @@ interface Props {
   image: string
   href: string
   title: string
+  alt?: string
 }
 
 const ExampleCard: FC<Props> = ({
   image,
   href,
-  title
+  title,
+  alt = ''
 }) => {
   return (
     <div className={styles.example}>
@@ -20,7 +22,7 @@ const ExampleCard: FC<Props> = ({
         <Image
           className={styles.image}
           src={image}
-          alt={''}
+          alt={alt}
           width={376}
           height={197}
         />

@@ -1,12 +1,13 @@
-import { FC, useMemo } from "react";
-import { Float, Line, OrbitControls } from "@react-three/drei";
+import { FC, useMemo, useRef } from "react";
+import { Float, Line, OrbitControls, PerspectiveCamera, useScroll } from "@react-three/drei";
 import * as THREE from "three";
 
 import Background from "./Background";
 import { Plane } from "./Plane";
 import { Clouds } from "./Clouds";
+import { useFrame } from "@react-three/fiber";
 
-const LINE_NB_POINTS = 2000;
+const LINE_NB_POINTS = 12000;
 
 const Experience: FC = () => {
   const curve = useMemo(() => {
@@ -47,10 +48,50 @@ const Experience: FC = () => {
     return shape;
   }, [curve]);
 
+  const cameraGroup = useRef(null);
+  const airplane = useRef(null);
+  const scroll = useScroll();
+
+  useFrame((_state, delta) => {
+    const curPointIndex = Math.min(
+      Math.round(scroll.offset * linePoints.length),
+      linePoints.length - 1
+    );
+    const curPoint = linePoints[curPointIndex];
+    const pointAhead = linePoints[Math.min(curPointIndex + 1, linePoints.length - 1)];
+    const xDisplacement = (pointAhead.x - curPoint.x) * 80;
+    // Math.PI / 2 -> LEFT
+    // -Math.PI / 2 -> RIGHT
+
+    const angleRotation =
+      (xDisplacement < 0 ? 1 : -1) * Math.min(Math.abs(xDisplacement), Math.PI / 3);
+
+    const targetAirplaneQuaternion = new THREE.Quaternion().setFromEuler(
+      new THREE.Euler(airplane.current.rotation.x, airplane.current.rotation.y, angleRotation)
+    );
+    const targetCameraQuaternion = new THREE.Quaternion().setFromEuler(
+      new THREE.Euler(cameraGroup.current.rotation.x, angleRotation, cameraGroup.current.rotation.z)
+    );
+
+    airplane.current.quaternion.slerp(targetAirplaneQuaternion, delta * 2);
+    cameraGroup.current.quaternion.slerp(targetCameraQuaternion, delta * 2);
+
+    cameraGroup.current.position.lerp(curPoint, delta * 24);
+  });
+
   return (
     <>
-      <OrbitControls autoRotate={false} />
-      <Background />
+      {/* <OrbitControls autoRotate={false} enableZoom={false} /> */}
+      <group ref={cameraGroup}>
+        <Background />
+        <PerspectiveCamera position={[0, 0, 5]} fov={30} makeDefault></PerspectiveCamera>
+        <group ref={airplane}>
+          {/* 给飞机添加上线浮动的动效 */}
+          <Float floatIntensity={3} speed={2}>
+            <Plane rotation-y={Math.PI / 2} scale={[0.2, 0.2, 0.2]} />
+          </Float>
+        </group>
+      </group>
       {/* <axesHelper args={[15]} /> */}
       <group position-y={-2}>
         {/* <Line points={linePoints} color={"white"} opacity={0.7} transparent lineWidth={16} /> */}
@@ -68,10 +109,7 @@ const Experience: FC = () => {
           <meshStandardMaterial color={"white"} opacity={0.7} transparent />
         </mesh>
       </group>
-      {/* 给飞机添加上线浮动的动效 */}
-      <Float floatIntensity={3} speed={2}>
-        <Plane rotation-y={Math.PI / 2} scale={[0.3, 0.3, 0.3]} />
-      </Float>
+
       <Clouds />
     </>
   );

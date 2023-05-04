@@ -22,6 +22,11 @@ export default function Home () {
           href={'/three/shoe'}
           title={'可配置的鞋子'}
         />
+        <ExampleCard
+          image={'/cover/airplane.png'}
+          href={'/three/plane'}
+          title={'飞机小游戏'}
+        />
       </div>
       <div className={styles.description}>
         <p>

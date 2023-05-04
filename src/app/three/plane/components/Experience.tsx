@@ -48,8 +48,8 @@ const Experience: FC = () => {
     return shape;
   }, [curve]);
 
-  const cameraGroup = useRef(null);
-  const airplane = useRef(null);
+  const cameraGroup = useRef<THREE.Group>(null);
+  const airplane = useRef<THREE.Group>(null);
   const scroll = useScroll();
 
   useFrame((_state, delta) => {
@@ -67,16 +67,16 @@ const Experience: FC = () => {
       (xDisplacement < 0 ? 1 : -1) * Math.min(Math.abs(xDisplacement), Math.PI / 3);
 
     const targetAirplaneQuaternion = new THREE.Quaternion().setFromEuler(
-      new THREE.Euler(airplane.current.rotation.x, airplane.current.rotation.y, angleRotation)
+      new THREE.Euler(airplane.current?.rotation.x, airplane.current?.rotation.y, angleRotation)
     );
     const targetCameraQuaternion = new THREE.Quaternion().setFromEuler(
-      new THREE.Euler(cameraGroup.current.rotation.x, angleRotation, cameraGroup.current.rotation.z)
+      new THREE.Euler(cameraGroup.current?.rotation.x, angleRotation, cameraGroup.current?.rotation.z)
     );
 
-    airplane.current.quaternion.slerp(targetAirplaneQuaternion, delta * 2);
-    cameraGroup.current.quaternion.slerp(targetCameraQuaternion, delta * 2);
+    airplane.current?.quaternion.slerp(targetAirplaneQuaternion, delta * 2);
+    cameraGroup.current?.quaternion.slerp(targetCameraQuaternion, delta * 2);
 
-    cameraGroup.current.position.lerp(curPoint, delta * 24);
+    cameraGroup.current?.position.lerp(curPoint, delta * 24);
   });
 
   return (
